@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "/WEB-INF/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.asiainfo.permission.mapper.PermissionMapper">
+    <resultMap id="permissionMap" type="com.asiainfo.permission.domain.Permission">
+        <result property="id" column="id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="name" column="name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="type" column="type" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="url" column="url" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="percode" column="percode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="parentid" column="parentid" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="parentids" column="parentids" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="sortstring" column="sortstring" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="avaliable" column="available" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="colsCustom">
+		id,
+		name,
+		type,
+		url,
+		percode,
+		parentid,
+		parentids,
+		sortstring,
+		available
+	</sql>
+
+	<select id="getMenuList" parameterType="java.lang.String" resultMap="permissionMap">
+
+		SELECT
+		<include refid="colsCustom"/>
+		FROM
+		sys_permission
+		WHERE TYPE = 'menu'
+		AND id IN
+		(SELECT
+		sys_permission_id
+		FROM
+		sys_role_permission
+		WHERE sys_role_id IN
+		(SELECT
+		sys_role_id
+		FROM
+		sys_user_role
+		WHERE sys_user_id = #{id}))
+		ORDER BY sortstring ASC
+	</select>
+
+	<select id="permissionPerCode" parameterType="string" resultType="string">
+		SELECT
+		percode
+		FROM
+		sys_permission
+		WHERE id IN
+		(SELECT
+		sys_permission_id
+		FROM
+		sys_role_permission
+		WHERE sys_role_id IN
+		(SELECT
+		sys_role_id
+		FROM
+		sys_user_role
+		WHERE sys_user_id = #{id}))
+		ORDER BY sortstring ASC
+	</select>
+
+	<select id="selectAllRole" parameterType="string" resultType="com.asiainfo.permission.domain.RoleVo">
+		select r.id,r.name from  sys_role r where r.id in
+        (
+        select sys_role_id from sys_user_role where sys_user_id = #{id}
+        )
+
+	</select>
+
+	<select id="getRoleById" parameterType="string" resultType="com.asiainfo.permission.domain.RoleVo">
+		select r.id,r.name from  sys_role r where r.id = #{id,jdbcType=VARCHAR}
+	</select>
+
+	<select id="findAll" parameterType="string" resultMap="permissionMap">
+		select <include refid="colsCustom"/> from sys_permission p,sys_role_permission rp
+		where p.id = rp.sys_permission_id and rp.sys_role_id = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="permissionDel" parameterType="string">
+		delete from sys_role_permission where sys_role_id = #{param1} and sys_permission_id =#{param2}
+	</delete>
+
+	<select id="userNotPermission" parameterType="string" resultType="com.asiainfo.permission.domain.Permission">
+		SELECT
+		*
+		FROM
+		sys_permission
+		WHERE
+		sys_permission.id NOT IN (
+		SELECT
+		p.id
+		FROM
+		sys_permission p
+		WHERE
+		p.id IN (
+		SELECT
+		rp.sys_permission_id
+		FROM
+		sys_role_permission rp
+		WHERE
+		rp.sys_role_id = #{id}
+		)
+		)
+
+	</select>
+	<insert id="insertPermission" parameterType="string" >
+		insert into sys_role_permission(sys_role_id,sys_permission_id)
+		values(#{param1},#{param2})
+	</insert>
+
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "/WEB-INF/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.asiainfo.permission.mapper.UserMapper">
+    <resultMap id="userMap" type="com.asiainfo.permission.domain.User">
+        <result property="id" column="id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="usercode" column="usercode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="password" column="password" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="colsCustom">
+		id,
+		usercode,
+		username,
+		password
+		
+	</sql>
+
+	<select id="selectAll" resultMap="userMap">
+		select <include refid="colsCustom"/>
+		from sys_user
+	</select>
+
+	<insert id="insert" parameterType="com.asiainfo.permission.domain.User">
+		insert into sys_user(id,usercode,username,password) values(#{id,jdbcType=VARCHAR},#{usercode,jdbcType=VARCHAR},#{username,jdbcType=VARCHAR},#{password,jdbcType=VARCHAR})
+
+	</insert>
+	<update id="update" parameterType="com.asiainfo.permission.domain.User">
+		update sys_user set usercode = #{usercode,jdbcType=VARCHAR},username = #{username,jdbcType=VARCHAR},
+		password = #{password,jdbcType=VARCHAR} where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<select id="getByUserCode" parameterType="string" resultMap="userMap">
+		select <include refid="colsCustom"/> from sys_user where usercode=#{usercode,jdbcType=VARCHAR}
+	</select>
+
+	<delete id="delete" parameterType="string" >
+		delete from sys_user where id = #{id}
+	</delete>
+
+	<select id="getById" parameterType="string" resultType="com.asiainfo.permission.domain.User">
+		select <include refid="colsCustom"/> from sys_user where id=#{id}
+	</select>
+
+	<select id="getId" resultType="string">
+		select max(id) from sys_user
+	</select>
+	<select id="getUserById" parameterType="string" resultMap="userMap">
+		select <include refid="colsCustom"/> from sys_user where id=#{id,jdbcType=VARCHAR}
+	</select>
+</mapper>

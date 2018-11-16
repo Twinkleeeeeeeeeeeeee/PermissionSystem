@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "/WEB-INF/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.asiainfo.permission.mapper.UserMapper">
+    <resultMap id="userMap" type="com.asiainfo.permission.domain.User">
+        <result property="id" column="id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="usercode" column="usercode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="password" column="password" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="colsCustom">
+		id,
+		usercode,
+		username,
+		password
+		
+	</sql>
+
+	<insert id="insert" parameterType="com.asiainfo.permission.domain.User">
+		insert into sys_user
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test=" id != null and id != ''">
+				id,
+			</if>
+			<if test=" usercode != null and usercode != ''">
+				usercode,
+			</if>
+			<if test=" username != null and username != ''">
+				username,
+			</if>
+			<if test=" password != null and password != ''">
+				password
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test=" id != null and id != ''">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test=" usercode != null and usercode != ''">
+				#{usercode,jdbcType=VARCHAR},
+			</if>
+			<if test=" username != null and username != ''">
+				#{username,jdbcType=VARCHAR},
+			</if>
+			<if test=" password != null and password != ''">
+				#{password,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	
+	<select id="getByUserCode" parameterType="string" resultMap="userMap">
+		select <include refid="colsCustom"/> from sys_user where usercode=#{usercode,jdbcType=VARCHAR}
+	</select>
+</mapper>

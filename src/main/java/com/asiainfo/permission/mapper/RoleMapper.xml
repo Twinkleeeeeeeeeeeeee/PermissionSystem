@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "/WEB-INF/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.asiainfo.permission.mapper.RoleMapper">
+    <resultMap id="userMap" type="com.asiainfo.permission.domain.User">
+        <result property="id" column="id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="usercode" column="usercode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="username" column="username" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result property="password" column="password" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="colsCustom">
+		id,
+		usercode,
+		username,
+		password
+		
+	</sql>
+
+	<select id="getUser" resultType="com.asiainfo.permission.domain.User">
+		SELECT <include refid="colsCustom"/> FROM sys_user
+	</select>
+	<select id="getRoleByUserId" resultType="java.util.Map" parameterType="string">
+		SELECT a.id,a.name FROM sys_role a,sys_user_role WHERE sys_role_id = a.id AND sys_user_id = #{param1}
+	</select>
+	<select id="getRoleByNotUserId" resultType="java.util.Map" parameterType="string">
+		SELECT id,name from sys_role WHERE `name` not in (
+		SELECT a.name FROM sys_role a,sys_user_role WHERE sys_role_id = a.id AND sys_user_id = #{param1})
+	</select>
+	<delete id="deleteUserRole" parameterType="string">
+		DELETE FROM sys_user_role WHERE sys_user_id =#{userId}
+	</delete>
+	<insert id="insertRole" >
+		INSERT INTO sys_user_role (sys_user_id,sys_role_id) VALUES (#{0},#{1})
+	</insert>
+</mapper>
